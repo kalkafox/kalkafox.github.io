@@ -1,23 +1,31 @@
 [
     {
-        "icon": "file-icons:c"
+        "icon": "file-icons:c",
+        "color": "#41ade7",
+        "active-color": true
     },
     {
-        "icon": "bxl:java"
+        "icon": "logos:java",
+        "color": "#e79b41"
     },
     {
-        "icon": "cib:rust"
+        "icon": "vscode-icons:file-type-rust",
+        "color": "#e76241"
     },
     {
-        "icon": "cib:lua"
+        "icon": "logos:lua",
+        "color": "#1821d4"
     },
     {
-        "icon": "akar-icons:python-fill"
+        "icon": "logos:python",
+        "color": "#e7d941"
     },
     {
-        "icon": "akar-icons:typescript-fill"
+        "icon": "logos:typescript-icon",
+        "color": "#1892d4"
     },
     {
-        "icon": "akar-icons:php-fill"
+        "icon": "logos:php",
+        "color": "#e741d9"
     }
 ]
