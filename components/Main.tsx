@@ -62,11 +62,11 @@ const Main = () => {
                             {links.map((link) => (
                                     <a rel="noreferrer" target="_blank" href={link.link} key={link.icon}
                                     onMouseEnter={(e) => {
-                                        // eslint-disable-next-line
+                                        // @ts-ignore: Type error
                                         e.target.style.color = link.color
                                     }}
                                     onMouseLeave={(e) => {
-                                        // eslint-disable-next-line
+                                        // @ts-ignore: Type error
                                         e.target.style.color = link.active ? "rgb(212,212,216)" : "rgb(82,82,86)"
                                     }}
                                     ><Icon icon={link.icon} className={`transition-all ${link.active ? "text-zinc-300" : "text-zinc-600"}`} /></a>
@@ -77,11 +77,11 @@ const Main = () => {
                                     <Icon icon={language.icon}
                                     key={language.icon}
                                     onMouseEnter={(e) => {
-                                        // eslint-disable-next-line
+                                        // @ts-ignore: Type error
                                         e.target.style.filter = "saturation(100%)"
                                     }}
                                     onMouseLeave={(e) => {
-                                        // eslint-disable-next-line
+                                        // @ts-ignore: Type error
                                         e.target.style.filter = "saturation(0%)"
                                     }}
                                     className="transition-all" />
