@@ -1,0 +1,23 @@
+[
+    {
+        "icon": "file-icons:c"
+    },
+    {
+        "icon": "bxl:java"
+    },
+    {
+        "icon": "cib:rust"
+    },
+    {
+        "icon": "cib:lua"
+    },
+    {
+        "icon": "akar-icons:python-fill"
+    },
+    {
+        "icon": "akar-icons:typescript-fill"
+    },
+    {
+        "icon": "akar-icons:php-fill"
+    }
+]

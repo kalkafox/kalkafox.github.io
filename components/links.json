@@ -1,0 +1,32 @@
+[
+    {
+        "link": "https://github.com/kalkafox",
+        "icon": "akar-icons:github-fill",
+        "color": "#000000",
+        "active": true
+    },
+    {
+        "link": "https://t.me/kalkaio",
+        "icon": "akar-icons:telegram-fill",
+        "color": "#0088cc",
+        "active": true
+    },
+    {
+        "link": "https://keybase.io/kalkafox",
+        "icon": "fa-brands:keybase",
+        "color": "#ED9B4A",
+        "active": true
+    },
+    {
+        "link": "https://youtube.com/Wielder432",
+        "icon": "akar-icons:youtube-fill",
+        "color": "#ED4A4A",
+        "active": true
+    },
+    {
+        "link": "https://twitter.com/kalkafox",
+        "icon": "akar-icons:twitter-fill",
+        "color": "#1da1f2",
+        "active": false
+    }
+]
