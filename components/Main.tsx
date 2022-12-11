@@ -1,6 +1,6 @@
 import Image from "next/image"
 import { ReactEventHandler, useEffect, useState } from "react"
-import { useSpring, animated as a } from "@react-spring/web"
+import { useSpring, useSprings, animated as a } from "@react-spring/web"
 
 import splashes from "./splash.json"
 import links from "./links.json"
@@ -11,6 +11,28 @@ import { Icon } from "@iconify/react"
 const Main = () => {
 
     const [showLoadSpinner, setShowLoadSpinner] = useState(true)
+
+    const [splashText, setSplashText] = useState(splashes[Math.floor(Math.random() * splashes.length)])
+
+    const [flipAvatar, setFlipAvatar] = useState(false)
+
+    const [linkSprings, setLinkSprings] = useSprings(links.length, () => ({
+        opacity: 1,
+        y: 5,
+        color: "#f0f0f0",
+    }))
+
+    const [languageSprings, setLanguageSprings] = useSprings(languages.length, () => ({
+        scale: 1,
+    }))
+
+    const [avatarSpring, setAvatarSpring] = useSpring(() => ({
+        rotateZ: 0,
+        scale: 1,
+        config: {
+            friction: 10,
+        }
+    }))
 
     const [backgroundImageSpring, setBackgroundImageSpring] = useSpring(() => ({
         scale: 1.5,
@@ -70,6 +92,34 @@ const Main = () => {
         }
     }
 
+    // define images to download before showing the page
+    const images = [
+        "https://db17gxef1g90a.cloudfront.net/img/1_blur.png",
+        "https://avatars.githubusercontent.com/u/9144208?s=460&u=3d2e3c8d0d8f8b8f8f8f8f8f8f8f8f8f8f8f8f8f&v=4"
+    ]
+
+    const [loadedImages, setLoadedImages] = useState<string[]>([])
+
+    const setImageLoaded = (image: string) => {
+        setLoadedImages((loadedImages) => [...loadedImages, image])
+    }
+
+    useEffect(() => {
+        if (loadedImages.length === images.length) {
+            onLoad()
+        }
+    }, [loadedImages])
+
+    useEffect(() => {
+        if (flipAvatar) {
+            console.log("ya")
+            setAvatarSpring.start({rotateZ: 360, onRest: () => {
+                setAvatarSpring.set({rotateZ: 0})
+                setFlipAvatar(false)
+            }})
+        }
+    }, [flipAvatar])
+
 
     return (
         <>
@@ -88,49 +138,55 @@ const Main = () => {
                     style={backgroundImageSpring}
                 ><Image onProgress={() => {
                     console.log("progress")
-                }} onLoad={onLoad} src="https://db17gxef1g90a.cloudfront.net/img/1_blur.png" alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority /></a.div>
+                }} onLoad={() => setImageLoaded(images[0])} src={images[0]} alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority /></a.div>
                 <div className="w-full h-full fixed bg-zinc-900 opacity-50" />
                 <div className="w-full h-full fixed">
                     <div className="w-[40%] portrait:w-[80%] h-auto fixed bg-zinc-900/75 rounded-xl left-0 right-0 top-20 m-auto">
                         <div className="text-center m-4">
-                            <span className="w-[128px] h-[128px] left-0 right-0 m-auto absolute rounded-full border-2 border-zinc-300" />
-                            <Image src="https://avatars.githubusercontent.com/u/9144208?s=460&u=3d2e3c8d0d8f8b8f8f8f8f8f8f8f8f8f8f8f8f8f&v=4" alt="avatar" width="128" height="128" className="rounded-full left-0 right-0 m-auto mt-4" quality="100" priority />
-                            <p className="text-zinc-300 font-['Poppins'] text-xl mt-4 mb-4">{splashes[Math.floor(Math.random() * splashes.length)]}</p>
+                            <a.div className="inline-block" style={avatarSpring}><Image onLoad={() => setImageLoaded(images[1])} src={images[1]} alt="avatar" width="128" height="128" className="rounded-full inline left-0 right-0 m-auto" quality="100" priority /></a.div>
+                            <span onClick={() => setFlipAvatar(true)} className="w-[128px] h-[128px] left-0 right-0 m-auto fixed rounded-full border-2 border-zinc-300" />
+                            <p className="text-zinc-300 font-['Poppins'] text-xl mt-4 mb-4">{splashText}</p>
                             <div className="grid gap-4 grid-flow-col-dense justify-center text-3xl mb-8">
-                                {links.map((link) => (
-                                    link.active && (
-                                        <a rel="noreferrer" target="_blank" href={link.link} key={link.icon}
-                                        onMouseEnter={(e) => {
+                                {linkSprings.map((props, index) => (
+                                    links[index].active && (
+                                        <a.a style={linkSprings[index]} rel="noreferrer" target="_blank" href={links[index].link} key={links[index].icon}
+                                        onMouseEnter={() => {
                                             // @ts-ignore: Type error
-                                            e.target.style.color = link.color
+                                            //e.target.style.color = links[index].color
+                                            props.y.start(0)
+                                            props.color.start(links[index].color)
                                         }}
                                         onMouseLeave={(e) => {
                                             // @ts-ignore: Type error
-                                            e.target.style.color = link.active ? "rgb(212,212,216)" : "rgb(82,82,86)"
+                                            //e.target.style.color = link.active ? "rgb(212,212,216)" : "rgb(82,82,86)"
+                                            props.y.start(5)
+                                            props.color.start("#f0f0f0")
                                         }}
-                                        ><Icon icon={link.icon} className={`transition-all ${link.active ? "text-zinc-300" : "text-zinc-600"}`} /></a>
+                                        ><Icon icon={links[index].icon} /></a.a>
                                     )
                                 ))}
                             </div>
                             <div className="grid gap-4 grid-flow-col-dense justify-center text-2xl mb-4">
-                                {languages.map((language) => (
-                                        <Icon icon={language.icon}
-                                        key={language.icon}
-                                        onMouseEnter={(e) => {
-                                            // @ts-ignore: Type error
-                                            e.target.style.filter = "saturate(100%)"
-                                            // @ts-ignore: Type error
-                                            language["active-color"] && (e.target.style.color = language.color)
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            // @ts-ignore: Type error
-                                            e.target.style.filter = "saturate(50%)"
-                                            // @ts-ignore: Type error
-                                            language["active-color"] && (e.target.style.color = "rgb(10,100,216)")
-                                        }}
-                                        className="transition-all saturate-50"
-                                        style={{color: language["active-color"] ? language.color : "rgb(10,100,216)"}}
-                                        />
+                                {languageSprings.map((props, index) => (
+                                    <a.span style={languageSprings[index]} key={languages[index].icon}
+                                    onMouseEnter={() => {
+                                        // @ts-ignore: Type error
+                                        //e.target.style.filter = "saturate(100%)"
+                                        // @ts-ignore: Type error
+                                        //languages[index]["active-color"] && (e.target.style.color = language.color)
+                                        props.scale.start(1.2)
+                                    }}
+                                    onMouseLeave={() => {
+                                        // @ts-ignore: Type error
+                                        //e.target.style.filter = "saturate(50%)"
+                                        // @ts-ignore: Type error
+                                        //language["active-color"] && (e.target.style.color = "rgb(10,100,216)")
+                                        props.scale.start(1)
+                                    }}>
+                                        <Icon icon={languages[index].icon}
+                                        key={languages[index].icon}
+                                        className="transition-all" />
+                                    </a.span>
                                 ))}
                             </div>
                             <hr className="border-zinc-500 mb-4" />
