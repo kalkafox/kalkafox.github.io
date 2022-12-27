@@ -1,20 +1,37 @@
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { ReactEventHandler, useEffect, useState } from "react"
 import { useSpring, useSprings, animated as a } from "@react-spring/web"
+
+import getConfig from "next/config"
+
+import { useRouter } from "next/router"
 
 import splashes from "./splash.json"
 import links from "./links.json"
 import languages from "./languages.json"
 import { Icon } from "@iconify/react"
+import { ReadyContext } from "../contexts/contexts"
+
+const TerminalComponent = dynamic(() => import("../components/terminal"), { ssr: false })
+
+const { publicRuntimeConfig } = getConfig()
+const { NEXT_VERSION, PAGE_VERSION } = publicRuntimeConfig
 
 
 const Main = () => {
 
+    const router = useRouter()
+
     const [showLoadSpinner, setShowLoadSpinner] = useState(true)
+
+    const [firstTerminalLoad, setFirstTerminalLoad] = useState(true)
 
     const [splashText, setSplashText] = useState(splashes[Math.floor(Math.random() * splashes.length)])
 
     const [flipAvatar, setFlipAvatar] = useState(false)
+
+    const [terminalRender, setTerminalRender] = useState(false)
 
     const [linkSprings, setLinkSprings] = useSprings(links.length, () => ({
         opacity: 1,
@@ -24,6 +41,22 @@ const Main = () => {
 
     const [languageSprings, setLanguageSprings] = useSprings(languages.length, () => ({
         scale: 1,
+    }))
+
+    const [terminalWindowSpring, setTerminalWindowSpring] = useSpring(() => ({
+        opacity: 0,
+        scale: 0.8,
+        config: {
+            friction: 20,
+        }
+    }))
+
+    const [mainMenuSpring, setMainMenuSpring] = useSpring(() => ({
+        opacity: 0,
+        scale: 1,
+        config: {
+            friction: 20,
+        }
     }))
 
     const [avatarSpring, setAvatarSpring] = useSpring(() => ({
@@ -42,6 +75,7 @@ const Main = () => {
 
     const [loadSpring, setLoadSpring] = useSpring(() => ({
         opacity: 0,
+        scale: 1,
     }))
 
     useEffect(() => {
@@ -81,6 +115,15 @@ const Main = () => {
                 setShowLoadSpinner(false)
             }
         })
+
+        setMainMenuSpring.start({
+            opacity: 1,
+            scale: 1,
+            config: {
+                friction: 20,
+            }
+        })
+
         if (window.innerWidth < 768 && window.innerHeight < 768) {
             setBackgroundImageSpring.start({
                 scale: 5,
@@ -120,6 +163,19 @@ const Main = () => {
         }
     }, [flipAvatar])
 
+    useEffect(() => {
+        if (terminalRender) {
+            setTerminalWindowSpring.set({scale: 1})
+            setTimeout(() => {
+                setTerminalWindowSpring.set({scale: 0.8})
+                setTerminalWindowSpring.start({opacity: 1, scale: 1})
+                setLoadSpring.start({scale: 1.2})
+                setMainMenuSpring.start({opacity: 0})
+                setFirstTerminalLoad(false)
+            }, 500)
+        }
+    }, [terminalRender])
+
 
     return (
         <>
@@ -132,7 +188,7 @@ const Main = () => {
                     </div>
                 </div>
             )}
-            <a.div style={loadSpring}>
+            <a.div style={loadSpring} className="fixed w-full h-full">
                 <a.div
                     className="fixed w-full h-full object-cover"
                     style={backgroundImageSpring}
@@ -140,7 +196,7 @@ const Main = () => {
                     console.log("progress")
                 }} onLoad={() => setImageLoaded(images[0])} src={images[0]} alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority /></a.div>
                 <div className="w-full h-full fixed bg-zinc-900 opacity-50" />
-                <div className="w-full h-full fixed">
+                <a.div style={mainMenuSpring} className="w-full h-full fixed">
                     <div className="w-[40%] portrait:w-[80%] h-auto fixed bg-zinc-900/75 rounded-xl left-0 right-0 top-20 m-auto">
                         <div className="text-center m-4">
                             <a.div className="inline-block" style={avatarSpring}><Image onLoad={() => setImageLoaded(images[1])} src={images[1]} alt="avatar" width="128" height="128" className="rounded-full inline left-0 right-0 m-auto" quality="100" priority /></a.div>
@@ -190,12 +246,36 @@ const Main = () => {
                                 ))}
                             </div>
                             <hr className="border-zinc-500 mb-4" />
-                            <p className="font-['Poppins'] text-zinc-300">Current Projects (WIP)</p>
+                            <button onClick={() => {
+                                setTerminalRender(true)
+                            }}><Icon icon="material-symbols:terminal" width="24" height="24" inline={true} /></button>
                             <div className="w-full h-full rounded-xl absolute"></div>
                         </div>
                     </div>
-                </div>
+                    <div className="w-full bg-zinc-900/50 h-6 fixed bottom-0">
+                        <span className="inline-block fixed font-['Poppins']">View on <a href="https://github.com/kalkafox/kalkafox.github.io" rel="noreferrer" target="_blank"><Icon className="inline" icon="mdi:github" width="22" height="22" inline={true} /></a></span>
+                        <div className="right-0 absolute -top-2">
+                            <a href="https://nextjs.org" rel="noreferrer" target="_blank">
+                                <Icon className="fixed right-0 fill-zinc-300 mr-[90px] -bottom-5" icon="logos:nextjs" width="64" height="64" inline={true} />
+                            </a>
+                            <span className="relative top-[6.5px]">{NEXT_VERSION}</span>
+                            <span className="relative top-[6.5px]">, {PAGE_VERSION}</span>
+                        </div>
+                    </div>
+                </a.div>
             </a.div>
+            {terminalRender && (
+                <a.div style={terminalWindowSpring} className="w-full h-full fixed">
+                    <div className="left-0 right-0 m-auto fixed">
+                        <TerminalComponent />
+                    </div>
+                    <button className="fixed right-0" onClick={() => {
+                        setTerminalWindowSpring.start({opacity: 0, scale: 0.8, onRest: () => setTerminalRender(false) })
+                        setLoadSpring.start({opacity: 1, scale: 1})
+                        setMainMenuSpring.start({opacity: 1})
+                    }}>Close</button>
+                </a.div>
+            )}
         </>
     )
 }
