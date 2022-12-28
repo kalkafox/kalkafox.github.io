@@ -3,11 +3,11 @@
 import { createContext, Dispatch, SetStateAction } from 'react';
 
 export interface IContext {
-    terminalReady: boolean;
-    setTerminalReady?: Dispatch<SetStateAction<boolean>>;
+    backgroundX: number;
+    backgroundY: number;
 }
 
-export const ReadyContext = createContext<IContext>({
-    terminalReady: false,
-    setTerminalReady: () => {},
+export const BackgroundContext = createContext<IContext>({
+    backgroundX: 0,
+    backgroundY: 0
 });

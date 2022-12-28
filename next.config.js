@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true,
   swcMinify: true,
   publicRuntimeConfig: {
     NEXT_VERSION: require('./package.json').dependencies.next,

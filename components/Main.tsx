@@ -11,9 +11,13 @@ import splashes from "./splash.json"
 import links from "./links.json"
 import languages from "./languages.json"
 import { Icon } from "@iconify/react"
-import { ReadyContext } from "../contexts/contexts"
+
+import {images} from "../util/data"
+import Background from "./Background"
+import MinecraftRemote from "../pages/mcremote"
 
 const TerminalComponent = dynamic(() => import("../components/terminal"), { ssr: false })
+const MinecraftRemoteComponent = dynamic(() => import("../pages/mcremote"))
 
 const { publicRuntimeConfig } = getConfig()
 const { NEXT_VERSION, PAGE_VERSION } = publicRuntimeConfig
@@ -27,11 +31,15 @@ const Main = () => {
 
     const [firstTerminalLoad, setFirstTerminalLoad] = useState(true)
 
+    const [altPageActive, setAltPageActive] = useState(false)
+
     const [splashText, setSplashText] = useState(splashes[Math.floor(Math.random() * splashes.length)])
 
     const [flipAvatar, setFlipAvatar] = useState(false)
 
     const [terminalRender, setTerminalRender] = useState(false)
+
+    const [mcRender, setMcRender] = useState(false)
 
     const [linkSprings, setLinkSprings] = useSprings(links.length, () => ({
         opacity: 1,
@@ -44,6 +52,14 @@ const Main = () => {
     }))
 
     const [terminalWindowSpring, setTerminalWindowSpring] = useSpring(() => ({
+        opacity: 0,
+        scale: 0.8,
+        config: {
+            friction: 20,
+        }
+    }))
+
+    const [mcWindowSpring, setMcWindowSpring] = useSpring(() => ({
         opacity: 0,
         scale: 0.8,
         config: {
@@ -67,46 +83,10 @@ const Main = () => {
         }
     }))
 
-    const [backgroundImageSpring, setBackgroundImageSpring] = useSpring(() => ({
-        scale: 1.5,
-        x: 0,
-        y: 0,
-    }))
-
     const [loadSpring, setLoadSpring] = useSpring(() => ({
         opacity: 0,
         scale: 1,
     }))
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            // get timestamp in seconds
-            const timestamp = Math.floor(Date.now())
-            // rotate the background in a circular motion using sine and cosine
-            const x = Math.cos(timestamp / 5000) * 100
-            const y = Math.sin(timestamp / 5000) * 100
-            setBackgroundImageSpring.start({
-                x,
-                y,
-            })
-        }, 10)
-
-        const handleResize = () => {
-            if (window.innerWidth < 768 || window.innerHeight < 768) {
-                setBackgroundImageSpring.start({
-                    scale: 5,
-                })
-            } else {
-                setBackgroundImageSpring.start({
-                    scale: 1.5,
-                })
-            }
-        }
-
-        window.addEventListener("resize", handleResize)
-
-        return () => clearInterval(interval)
-    }, [setBackgroundImageSpring])
 
     const onLoad = () => {
         setLoadSpring.start({
@@ -123,23 +103,9 @@ const Main = () => {
                 friction: 20,
             }
         })
-
-        if (window.innerWidth < 768 && window.innerHeight < 768) {
-            setBackgroundImageSpring.start({
-                scale: 5,
-            })
-        } else {
-            setBackgroundImageSpring.start({
-                scale: 1.5,
-            })
-        }
     }
 
     // define images to download before showing the page
-    const images = [
-        "https://db17gxef1g90a.cloudfront.net/img/1_blur.png",
-        "https://avatars.githubusercontent.com/u/9144208?s=460&u=3d2e3c8d0d8f8b8f8f8f8f8f8f8f8f8f8f8f8f8f&v=4"
-    ]
 
     const [loadedImages, setLoadedImages] = useState<string[]>([])
 
@@ -188,13 +154,8 @@ const Main = () => {
                     </div>
                 </div>
             )}
-            <a.div style={loadSpring} className="fixed w-full h-full">
-                <a.div
-                    className="fixed w-full h-full object-cover"
-                    style={backgroundImageSpring}
-                ><Image onProgress={() => {
-                    console.log("progress")
-                }} onLoad={() => setImageLoaded(images[0])} src={images[0]} alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority /></a.div>
+                <a.div style={loadSpring} className="fixed w-full h-full">
+                <Background setReady={setImageLoaded} />
                 <div className="w-full h-full fixed bg-zinc-900 opacity-50" />
                 <a.div style={mainMenuSpring} className="w-full h-full fixed">
                     <div className="w-[40%] portrait:w-[80%] h-auto fixed bg-zinc-900/75 rounded-xl left-0 right-0 top-20 m-auto">
@@ -222,7 +183,7 @@ const Main = () => {
                                     )
                                 ))}
                             </div>
-                            <div className="grid gap-4 grid-flow-col-dense justify-center text-2xl mb-4">
+                            {/* <div className="grid gap-4 grid-flow-col-dense justify-center text-2xl mb-4">
                                 {languageSprings.map((props, index) => (
                                     <a.span style={languageSprings[index]} key={languages[index].icon}
                                     onMouseEnter={() => {
@@ -244,12 +205,19 @@ const Main = () => {
                                         className="transition-all" />
                                     </a.span>
                                 ))}
-                            </div>
+                            </div> */}
                             <hr className="border-zinc-500 mb-4" />
                             <button onClick={() => {
                                 setTerminalRender(true)
                             }}><Icon icon="material-symbols:terminal" width="24" height="24" inline={true} /></button>
-                            <div className="w-full h-full rounded-xl absolute"></div>
+                            <button><Icon onClick={() => {
+                                setLoadSpring.start({scale: 1.2})
+                                setMainMenuSpring.start({opacity: 0, onRest: () => {
+                                    setAltPageActive(true)
+                                }})
+                                setMcWindowSpring.start({opacity: 1, scale: 1})
+                                setMcRender(true)
+                            }} icon="mdi:minecraft" width="24" height="24" inline={true} /></button>
                         </div>
                     </div>
                     <div className="w-full bg-zinc-900/50 h-6 fixed bottom-0">
@@ -273,6 +241,19 @@ const Main = () => {
                         setTerminalWindowSpring.start({opacity: 0, scale: 0.8, onRest: () => setTerminalRender(false) })
                         setLoadSpring.start({opacity: 1, scale: 1})
                         setMainMenuSpring.start({opacity: 1})
+                    }}>Close</button>
+                </a.div>
+            )}
+            {mcRender && (
+                <a.div style={mcWindowSpring} className="w-full h-full fixed">
+                    <div className="left-0 right-0 m-auto fixed">
+                        <MinecraftRemote showBackground={false} />
+                    </div>
+                    <button className="fixed right-0" onClick={() => {
+                        setMcWindowSpring.start({opacity: 0, scale: 0.8, onRest: () => setMcRender(false) })
+                        setLoadSpring.start({opacity: 1, scale: 1})
+                        setMainMenuSpring.start({opacity: 1})
+                        setAltPageActive(false)
                     }}>Close</button>
                 </a.div>
             )}
