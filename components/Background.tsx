@@ -6,10 +6,11 @@ import { BackgroundContext } from "../contexts/contexts"
 import Image from "next/image"
 
 import { images } from "../util/data"
+import { setImageLoaded } from "../util/image"
 
 
 
-const Background = ({ setReady }: { setReady: (image: string) => void }) => {
+const Background = ({ setReady }: { setReady: Dispatch<SetStateAction<string[]>> }) => {
 
     const backgroundContext = useContext(BackgroundContext)
 
@@ -54,7 +55,7 @@ const Background = ({ setReady }: { setReady: (image: string) => void }) => {
     return (
         <>
             <a.div className="fixed w-full h-full object-cover" style={backgroundImageSpring}>
-                <Image onLoad={() => setReady(images[0])} src={images[0]} alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority />
+                <Image onLoad={() => setImageLoaded(images[0], setReady)} src={images[0]} alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority />
             </a.div>
         </>
     )

@@ -1,6 +1,6 @@
 {
   "name": "kalkafox",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@iconify/react": "^4.0.1",
+    "@next/font": "^13.1.1",
     "@react-spring/web": "^9.6.1",
     "@types/node": "18.11.18",
     "@types/react": "18.0.26",
