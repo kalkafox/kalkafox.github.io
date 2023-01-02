@@ -54,12 +54,12 @@ const Main = () => {
         scale: 1,
         opacity: 0,
         config: {
-            friction: 10,
+            friction: 20,
         }
     }))
 
     const [mainMenuSpring, setMainMenuSpring] = useSpring(() => ({
-        opacity: 1,
+        opacity: 0,
         scale: 1,
         config: {
             friction: 20,
@@ -134,7 +134,7 @@ const Main = () => {
                 <a.div style={mainMenuSpring} className="w-full h-full fixed">
                     <div className="w-[40%] portrait:w-[80%] h-auto fixed bg-zinc-900/75 rounded-xl left-0 right-0 top-20 m-auto">
                         <div className="text-center m-4">
-                            <a.div className="inline-block" style={avatarSpring}><Image onLoad={() => setImageLoaded(images[1], setLoadedImages)} src={images[1]} alt="avatar" width="128" height="128" className="rounded-full inline left-0 right-0 m-auto" quality="100" priority /></a.div>
+                            <a.div className="inline-block" style={avatarSpring}><Image onLoad={() => setImageLoaded(images[1], setLoadedImages)} src={images[1]} alt="avatar" width="128" height="128" className="rounded-full inline left-0 right-0 m-auto" quality="80" priority /></a.div>
                             <span onClick={() => setFlipAvatar(true)} className="w-[128px] h-[128px] left-0 right-0 m-auto fixed rounded-full border-2 border-zinc-300" />
                             <p className={`text-zinc-300 text-xl mt-4 mb-4 ${poppins.className}`}>{splashText}</p>
                             <div className="grid gap-4 grid-flow-col-dense justify-center text-3xl mb-8">
