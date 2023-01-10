@@ -1,64 +1,84 @@
-import { Dispatch, SetStateAction, useContext, useEffect } from "react"
-import { useSpring, animated as a } from "@react-spring/web"
+import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
+import { useSpring, animated as a } from '@react-spring/web'
 
-import { BackgroundContext } from "../contexts/contexts"
+import Image from 'next/image'
 
-import Image from "next/image"
+import { images } from '../util/data'
+import { setImageLoaded } from '../util/image'
 
-import { images } from "../util/data"
-import { setImageLoaded } from "../util/image"
+const timestamp = () => Math.floor(Date.now())
 
+const x = (mod: number, amp: number) => Math.cos(timestamp() / mod) * amp
+const y = (mod: number, amp: number) => Math.sin(timestamp() / mod) * amp
 
+const Background = ({
+  setReady,
+  image = images[0],
+  scale = 1.5,
+  doResize = true,
+  mod = 5000,
+  amp = 100,
+}: {
+  setReady: Dispatch<SetStateAction<string[]>>
+  image?: string
+  scale?: number
+  doResize?: boolean
+  mod?: number
+  amp?: number
+}) => {
+  const [backgroundImageSpring, setBackgroundImageSpring] = useSpring(() => ({
+    scale: 1.5,
+    x: x(mod, amp),
+    y: y(mod, amp),
+  }))
 
-const Background = ({ setReady }: { setReady: Dispatch<SetStateAction<string[]>> }) => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBackgroundImageSpring.start({
+        x: x(mod, amp),
+        y: y(mod, amp),
+      })
+    }, 10)
 
-    const backgroundContext = useContext(BackgroundContext)
+    const handleResize = () => {
+      if (!doResize) return
+      if (window.innerWidth < 768 || window.innerHeight < 768) {
+        setBackgroundImageSpring.start({
+          scale: 5,
+        })
+      } else {
+        setBackgroundImageSpring.start({
+          scale: 1.5,
+        })
+      }
+    }
 
-    const { backgroundX, backgroundY } = backgroundContext
+    handleResize()
 
-    const [backgroundImageSpring, setBackgroundImageSpring] = useSpring(() => ({
-        scale: 1.5,
-        x: backgroundX,
-        y: backgroundY,
-    }))
+    window.addEventListener('resize', handleResize)
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            // get timestamp in seconds
-            const timestamp = Math.floor(Date.now())
-            // rotate the background in a circular motion using sine and cosine
-            const x = Math.cos(timestamp / 5000) * 100
-            const y = Math.sin(timestamp / 5000) * 100
-            setBackgroundImageSpring.start({
-                x,
-                y,
-            })
-        }, 10)
+    return () => clearInterval(interval)
+  }, [setBackgroundImageSpring])
 
-        const handleResize = () => {
-            if (window.innerWidth < 768 || window.innerHeight < 768) {
-                setBackgroundImageSpring.start({
-                    scale: 5,
-                })
-            } else {
-                setBackgroundImageSpring.start({
-                    scale: 1.5,
-                })
-            }
-        }
-
-        window.addEventListener("resize", handleResize)
-
-        return () => clearInterval(interval)
-    }, [setBackgroundImageSpring])
-
-    return (
-        <>
-            <a.div className="fixed w-full h-full object-cover" style={backgroundImageSpring}>
-                <Image onLoad={() => setImageLoaded(images[0], setReady)} src={images[0]} alt="gilneas" width="1920" height="1080" className="fixed object-cover bg-cover w-screen h-screen" quality="100" priority />
-            </a.div>
-        </>
-    )
+  return (
+    <>
+      <a.div
+        className="fixed w-full h-full object-cover"
+        style={backgroundImageSpring}
+      >
+        <Image
+          onLoad={() => setImageLoaded(image, setReady)}
+          src={image}
+          alt="gilneas"
+          width="1920"
+          height="1080"
+          className="fixed object-cover bg-cover w-screen h-screen"
+          quality="100"
+          priority
+        />
+      </a.div>
+    </>
+  )
 }
 
 export default Background

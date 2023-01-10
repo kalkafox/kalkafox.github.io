@@ -1,7 +1,9 @@
-import dynamic from "next/dynamic"
-import { Suspense } from "react"
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
 
-const MainComponent = dynamic(() => import("../components/Main"), { suspense: true})
+const MainComponent = dynamic(() => import('../components/Main'), {
+  suspense: true,
+})
 
 const Index = () => {
   return (
