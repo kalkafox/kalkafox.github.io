@@ -1,5 +1,9 @@
-
-export default function OpenGraph({ title, description, image, url }: {
+export default function OpenGraph({
+  title,
+  description,
+  image,
+  url,
+}: {
   title: string
   description: string
   image: string
@@ -25,4 +29,3 @@ export default function OpenGraph({ title, description, image, url }: {
     </>
   )
 }
-

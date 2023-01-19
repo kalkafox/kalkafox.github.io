@@ -144,8 +144,7 @@ export default function AkundaComponent() {
       const keyByte = keyBuffer[index]
       const encodedByte = byte ^ keyByte
       buffer[index] = encodedByte
-    }
-    )
+    })
     setEncrypt(buffer.toString('base64'))
   }, [key, encryptMessage])
 
@@ -277,7 +276,9 @@ export default function AkundaComponent() {
                   <textarea
                     className="w-full resize-none rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
                     onChange={(e) => {
-                      encryptMode ? setEncryptMessage(e.target.value) : setDecryptMessage(e.target.value)
+                      encryptMode
+                        ? setEncryptMessage(e.target.value)
+                        : setDecryptMessage(e.target.value)
                     }}
                     value={encryptMode ? encryptMessage : decryptMessage}
                     onDoubleClick={() => {
@@ -334,7 +335,11 @@ export default function AkundaComponent() {
               <code>
                 <textarea
                   disabled={true}
-                  value={encryptMode ? Buffer.from(encrypt, 'base64').toString('utf8') : Buffer.from(decrypt, 'base64').toString('utf8')}
+                  value={
+                    encryptMode
+                      ? Buffer.from(encrypt, 'base64').toString('utf8')
+                      : Buffer.from(decrypt, 'base64').toString('utf8')
+                  }
                   className="resize-none w-full rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
                 />
               </code>
@@ -367,7 +372,9 @@ export default function AkundaComponent() {
                 className="w-full rounded-lg h-80 bg-zinc-900/50 text-zinc-50 p-2"
                 value={encryptMode ? encryptMessage : decryptMessage}
                 onChange={(e) => {
-                  encryptMode ? setEncryptMessage(e.target.value) : setDecryptMessage(e.target.value)
+                  encryptMode
+                    ? setEncryptMessage(e.target.value)
+                    : setDecryptMessage(e.target.value)
                 }}
               />
             </code>

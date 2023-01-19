@@ -1,5 +1,5 @@
 import packageData from '../package.json' assert { type: 'json' }
-import * as log from "https://deno.land/std@0.171.0/log/mod.ts"
+import * as log from 'https://deno.land/std@0.171.0/log/mod.ts'
 
 const version_data = {
   ASTRO_VERSION: packageData.dependencies.astro.replace('^', ''),
