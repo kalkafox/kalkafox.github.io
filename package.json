@@ -19,20 +19,20 @@
     "@iconify/react": "^4.0.1",
     "@jridgewell/sourcemap-codec": "^1.4.14",
     "@react-spring/web": "^9.6.1",
-    "@types/react": "^18.0.21",
-    "@types/react-dom": "^18.0.6",
-    "astro": "^1.7.0",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "astro": "^1.9.2",
     "buffer": "^6.0.3",
     "postcss": "^8.4.21",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sharp": "^0.31.3",
     "smooth-scrollbar": "^8.8.1",
-    "tailwindcss": "^3.0.24"
+    "tailwindcss": "^3.2.4"
   },
   "devDependencies": {
-    "@types/prettier": "^2",
-    "@types/sharp": "^0",
+    "@types/prettier": "^2.7.2",
+    "@types/sharp": "^0.31.1",
     "prettier": "^2.8.3"
   }
 }
