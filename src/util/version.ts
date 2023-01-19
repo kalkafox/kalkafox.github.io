@@ -1,0 +1,1 @@
+export default {"ASTRO_VERSION":"1.9.0","PROJECT_VERSION":"0.0.1"}
