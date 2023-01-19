@@ -1,0 +1,19 @@
+---
+import Main from '../components/Main'
+import '@fontsource/poppins/200.css'
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	</head>
+	<body>
+		<main>
+			<div class="bg-zinc-900 w-full h-full fixed" />
+			<Main client:only />
+		</main>
+	</body>
+</html>
