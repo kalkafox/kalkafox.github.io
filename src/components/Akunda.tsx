@@ -19,9 +19,6 @@ export default function AkundaComponent() {
 
   const [showMultiLineInput, setShowMultiLineInput] = useState(false)
 
-  const encryptColorSpring = useSpringValue('#eeeeee')
-  const decryptColorSpring = useSpringValue('#eeeeee')
-
   const [decoded, setDecoded] = useState('')
 
   const [key, setKey] = useState('')
@@ -39,6 +36,22 @@ export default function AkundaComponent() {
   const [buttonSelectionSpring, setButtonSelectionSpring] = useSpring(() => ({
     scale: 1,
     x: 0,
+    config: {
+      friction: 10,
+    },
+  }))
+
+  const [encryptSpring, setEncryptSpring] = useSpring(() => ({
+    color: '#eeeeee',
+    scale: 1,
+    config: {
+      friction: 20,
+    },
+  }))
+
+  const [decryptSpring, setDecryptSpring] = useSpring(() => ({
+    color: '#eeeeee',
+    scale: 1,
     config: {
       friction: 20,
     },
@@ -115,7 +128,6 @@ export default function AkundaComponent() {
 
   useEffect(() => {
     if (showMultiLineInput) {
-      
       setMultiLineInputSpring.start({
         opacity: 1,
         scale: 1,
@@ -125,11 +137,23 @@ export default function AkundaComponent() {
 
   useEffect(() => {
     if (encryptMode) {
-      encryptColorSpring.start('#333333')
-      decryptColorSpring.start('#eeeeee')
+      setEncryptSpring.start({
+        color: '#333333',
+        scale: 1,
+      })
+      setDecryptSpring.start({
+        color: '#eeeeee',
+        scale: 0.8,
+      })
     } else {
-      encryptColorSpring.start('#eeeeee')
-      decryptColorSpring.start('#333333')
+      setEncryptSpring.start({
+        color: '#eeeeee',
+        scale: 0.8,
+      })
+      setDecryptSpring.start({
+        color: '#333333',
+        scale: 1,
+      })
     }
   }, [encryptMode])
 
@@ -157,44 +181,55 @@ export default function AkundaComponent() {
           {/* TODO get background from aws */}
         </a.div>
       </a.div>
-      <a.div style={mainMenuSpring} className="w-full h-full fixed">
-        <div className="w-[40%] portrait:w-[80%] backdrop-blur-lg h-auto fixed bg-zinc-900/50 rounded-xl left-0 right-0 top-20 m-auto">
+      <div className="w-full h-full fixed">
+        <a.div
+          style={mainMenuSpring}
+          className="w-[40%] portrait:w-[80%] h-auto fixed backdrop-blur-lg bg-zinc-900/50 rounded-xl left-0 right-0 top-20 m-auto"
+        >
           <div className={`text-center m-4 font-[Poppins] text-zinc-300`}>
             Clarity comes after the storm.
           </div>
 
-          <a.div style={buttonSelectionSpring} className="absolute right-20 bg-zinc-400 w-20 left-0 text-center m-auto inline rounded-xl text-zinc-400">.</a.div>
+          <a.div
+            style={buttonSelectionSpring}
+            className="absolute right-20 bg-zinc-400 w-20 left-0 text-center m-auto inline rounded-xl text-zinc-400"
+          >
+            .
+          </a.div>
 
           <a.button
-            style={{
-              color: encryptColorSpring,
-            }}
-            onClick={
-            () => {
+            style={encryptSpring}
+            onClick={() => {
               setButtonSelectionSpring.start({
                 x: 0,
               })
               setEncryptMode(true)
-            }
-          } className="absolute right-20 w-20 left-0 text-center m-auto text-zinc-900 font-[Poppins] inline">Encrypt</a.button>
-          <a.button
-            style={{
-              color: decryptColorSpring,
             }}
-            onClick={
-            () => {
+            className="absolute right-20 w-20 left-0 text-center m-auto text-zinc-900 font-[Poppins] inline"
+          >
+            Encrypt
+          </a.button>
+          <a.button
+            style={decryptSpring}
+            onClick={() => {
               setButtonSelectionSpring.start({
                 x: 80,
               })
               setEncryptMode(false)
-            }
-          } className="absolute left-20 w-20 right-0 text-center m-auto font-[Poppins] text-zinc-300 inline">Decrypt</a.button>
+            }}
+            className="absolute left-20 w-20 right-0 text-center m-auto font-[Poppins] text-zinc-300 inline"
+          >
+            Decrypt
+          </a.button>
           <br />
 
           <div className="m-4">
             <form className="w-[90%]">
               <div className="grid-cols-2 grid gap-2">
-                <Icon icon="material-symbols:key" className="text-4xl w-full text-zinc-300" />
+                <Icon
+                  icon="material-symbols:key"
+                  className="text-4xl w-full text-zinc-300"
+                />
                 <code>
                   <input
                     className="w-full rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
@@ -221,6 +256,7 @@ export default function AkundaComponent() {
                     onChange={(e) => {
                       setMessage(e.target.value)
                     }}
+                    value={message}
                     onDoubleClick={() => {
                       openMultiLineInput()
                     }}
@@ -281,8 +317,8 @@ export default function AkundaComponent() {
               </code>
             </div>
           </div>
-        </div>
-      </a.div>
+        </a.div>
+      </div>
       {showMultiLineInput && (
         <div
           onClick={(e) => {
@@ -302,14 +338,16 @@ export default function AkundaComponent() {
             style={multiLineInputSpring}
             className="w-[38%] portrait:w-[80%] h-auto fixed backdrop-blur-lg bg-zinc-900/50 rounded-xl left-0 right-0 top-20 m-auto"
           >
-            <textarea
-              ref={multiLineInputRef}
-              className="w-full rounded-lg h-80 bg-zinc-900/50 text-zinc-50 p-2"
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value)
-              }}
-            />
+            <code>
+              <textarea
+                ref={multiLineInputRef}
+                className="w-full rounded-lg h-80 bg-zinc-900/50 text-zinc-50 p-2"
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value)
+                }}
+              />
+            </code>
           </a.div>
         </div>
       )}

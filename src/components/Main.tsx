@@ -13,7 +13,6 @@ import Background from '../../src/components/Background'
 import env from '../util/version'
 
 const Main = () => {
-
   const [showLoadSpinner, setShowLoadSpinner] = useState(true)
 
   const imgRef = useRef<HTMLImageElement>(null)
@@ -69,7 +68,6 @@ const Main = () => {
   }
 
   useEffect(() => {
-
     const onLoad = () => {
       setBackgroundSpring.start({
         opacity: 1,
@@ -86,7 +84,6 @@ const Main = () => {
         },
       })
     }
-
 
     if (loadedImages.length > images.length) {
       onLoad()
@@ -115,14 +112,21 @@ const Main = () => {
         <div className="w-full h-full fixed">
           <div className="w-[40%] portrait:w-[80%] lg:w-[80%] h-auto fixed left-0 right-0 top-20 m-auto">
             <div className="text-center m-4">
-              <div className="w-[136px] h-[136px] top-3 left-0 right-0 m-auto absolute bg-zinc-800 loader" />a
+              <div className="w-[136px] h-[136px] top-3 left-0 right-0 m-auto absolute bg-zinc-800 loader" />
+              a
             </div>
           </div>
         </div>
       )}
       <a.div style={loadSpring} className="fixed w-full h-full">
         <a.div style={backgroundSpring}>
-          <Background doResize={false} mod={5000} amp={20} setReady={setLoadedImages} image={images[0]} />
+          <Background
+            doResize={false}
+            mod={5000}
+            amp={20}
+            setReady={setLoadedImages}
+            image={images[0]}
+          />
         </a.div>
         <div className="w-full h-full fixed bg-zinc-900 opacity-50" />
         <a.div style={mainMenuSpring} className="w-full h-full fixed">
@@ -143,9 +147,7 @@ const Main = () => {
                 onClick={() => setFlipAvatar(true)}
                 className="w-[128px] h-[128px] left-0 right-0 m-auto fixed rounded-full border-2 border-zinc-300"
               />
-              <p
-                className={`text-zinc-300 text-xl mt-4 mb-4 font-[Poppins]`}
-              >
+              <p className={`text-zinc-300 text-xl mt-4 mb-4 font-[Poppins]`}>
                 {splashText}
               </p>
               <div className="grid gap-4 grid-flow-col-dense justify-center text-3xl mb-8">
@@ -238,9 +240,17 @@ const Main = () => {
             </span>
             <div className="right-0 absolute -top-2 select-none">
               <a href="https://astro.build" rel="noreferrer" target="_blank">
-                <Icon className="fixed right-8 fill-zinc-300 bottom-0" icon="simple-icons:astro" color="#eee" width="24" inline={true} />
+                <Icon
+                  className="fixed right-8 fill-zinc-300 bottom-0"
+                  icon="simple-icons:astro"
+                  color="#eee"
+                  width="24"
+                  inline={true}
+                />
               </a>
-              <span className="relative top-[10px] text-zinc-300">{env.ASTRO_VERSION}</span>
+              <span className="relative top-[10px] text-zinc-300">
+                {env.ASTRO_VERSION}
+              </span>
             </div>
           </div>
         </a.div>

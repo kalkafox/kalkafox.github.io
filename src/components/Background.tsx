@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect, useRef } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react'
 import { useSpring, animated as a } from '@react-spring/web'
 
 import { images } from '../util/data'
@@ -33,10 +39,9 @@ const Background = ({
   const imgRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
-
     if (imgRef.current) {
       imgRef.current.onload = () => {
-        console.log("onload")
+        console.log('onload')
         setImageLoaded(image, setReady)
       }
     }

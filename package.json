@@ -1,7 +1,7 @@
 {
-  "name": "@example/basics",
+  "name": "kalkafox.github.io",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "dev": "TAILWIND_MODE=watch astro dev",
@@ -31,6 +31,8 @@
     "tailwindcss": "^3.0.24"
   },
   "devDependencies": {
-    "@types/sharp": "^0"
+    "@types/prettier": "^2",
+    "@types/sharp": "^0",
+    "prettier": "^2.8.3"
   }
 }
