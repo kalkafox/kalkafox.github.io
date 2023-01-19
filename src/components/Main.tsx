@@ -222,7 +222,7 @@ const Main = () => {
               </button>
             </div>
           </div>
-          <div className="w-full left-0 bg-zinc-900/50 h-7 fixed bottom-0">
+          <div className="w-full left-0 bg-zinc-900/50 h-7 backdrop-blur-lg fixed bottom-0">
             <span className="inline-block fixed">
               <a
                 href="https://github.com/kalkafox/kalkafox.github.io"

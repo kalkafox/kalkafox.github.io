@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 
 import { useSpring, animated as a, useSpringValue } from '@react-spring/web'
 
@@ -19,11 +19,19 @@ export default function AkundaComponent() {
 
   const [showMultiLineInput, setShowMultiLineInput] = useState(false)
 
-  const [decoded, setDecoded] = useState('')
+  const [decrypt, setDecrypt] = useState('')
+
+  const [encrypt, setEncrypt] = useState('')
 
   const [key, setKey] = useState('')
 
-  const [message, setMessage] = useState('')
+  const placeholderKey = useMemo(() => {
+    const key = Buffer.from('kalkafox').toString('base64')
+    return key
+  }, [])
+
+  const [decryptMessage, setDecryptMessage] = useState('')
+  const [encryptMessage, setEncryptMessage] = useState('')
 
   const [backgroundSpring, setBackgroundSpring] = useSpring(() => ({
     scale: 1,
@@ -104,11 +112,11 @@ export default function AkundaComponent() {
   }, [])
 
   useEffect(() => {
-    if (key.length === message.length) {
+    if (key.length === decryptMessage.length) {
       // do nothing for now
     }
 
-    const messageBuffer = Buffer.from(message, 'base64')
+    const messageBuffer = Buffer.from(decryptMessage, 'base64')
     const keyBuffer = Buffer.from(key, 'base64')
 
     const buffer = Buffer.alloc(messageBuffer.length)
@@ -119,8 +127,27 @@ export default function AkundaComponent() {
       buffer[index] = decodedByte
     })
 
-    setDecoded(buffer.toString())
-  }, [key, message])
+    setDecrypt(buffer.toString())
+  }, [key, decryptMessage])
+
+  useEffect(() => {
+    if (key.length === encryptMessage.length) {
+      // do nothing for now
+    }
+
+    const messageBuffer = Buffer.from(encryptMessage)
+    const keyBuffer = Buffer.from(key, 'base64')
+
+    const buffer = Buffer.alloc(messageBuffer.length)
+
+    messageBuffer.forEach((byte, index) => {
+      const keyByte = keyBuffer[index]
+      const encodedByte = byte ^ keyByte
+      buffer[index] = encodedByte
+    }
+    )
+    setEncrypt(buffer.toString('base64'))
+  }, [key, encryptMessage])
 
   const openMultiLineInput = () => {
     setShowMultiLineInput(true)
@@ -231,17 +258,13 @@ export default function AkundaComponent() {
                   className="text-4xl w-full text-zinc-300"
                 />
                 <code>
-                  <input
+                  <textarea
                     className="w-full rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
                     value={key}
                     onChange={(e) => {
                       setKey(e.target.value)
                     }}
-                    type="text"
-                    placeholder={`Example: ${Buffer.from(
-                      crypto.randomUUID(),
-                      'base64',
-                    ).toString('utf8')}...`}
+                    placeholder={`e.g, ${placeholderKey}...`}
                   />
                 </code>
                 <Icon
@@ -254,9 +277,9 @@ export default function AkundaComponent() {
                   <textarea
                     className="w-full resize-none rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
                     onChange={(e) => {
-                      setMessage(e.target.value)
+                      encryptMode ? setEncryptMessage(e.target.value) : setDecryptMessage(e.target.value)
                     }}
-                    value={message}
+                    value={encryptMode ? encryptMessage : decryptMessage}
                     onDoubleClick={() => {
                       openMultiLineInput()
                     }}
@@ -304,14 +327,14 @@ export default function AkundaComponent() {
               <code>
                 <textarea
                   disabled={true}
-                  value={decoded}
+                  value={encryptMode ? encrypt : decrypt}
                   className="resize-none w-full rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
                 />
               </code>
               <code>
                 <textarea
                   disabled={true}
-                  value={Buffer.from(decoded).toString('base64')}
+                  value={encryptMode ? Buffer.from(encrypt, 'base64').toString('utf8') : Buffer.from(decrypt, 'base64').toString('utf8')}
                   className="resize-none w-full rounded-lg bg-zinc-900/50 text-zinc-50 p-2"
                 />
               </code>
@@ -342,9 +365,9 @@ export default function AkundaComponent() {
               <textarea
                 ref={multiLineInputRef}
                 className="w-full rounded-lg h-80 bg-zinc-900/50 text-zinc-50 p-2"
-                value={message}
+                value={encryptMode ? encryptMessage : decryptMessage}
                 onChange={(e) => {
-                  setMessage(e.target.value)
+                  encryptMode ? setEncryptMessage(e.target.value) : setDecryptMessage(e.target.value)
                 }}
               />
             </code>
