@@ -80,7 +80,6 @@ const Background = ({
         style={backgroundImageSpring}
       >
         <img
-          onLoad={() => setImageLoaded(image, setReady)}
           ref={imgRef}
           src={image}
           alt="gilneas"

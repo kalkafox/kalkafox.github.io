@@ -61,13 +61,13 @@ const Main = () => {
 
   const [loadedImages, setLoadedImages] = useState<string[]>([])
 
-  if (imgRef.current) {
-    imgRef.current.onload = () => {
-      setLoadedImages([...loadedImages, imgRef.current?.src as string])
-    }
-  }
-
   useEffect(() => {
+    if (imgRef.current) {
+      imgRef.current.onload = () => {
+        setImageLoaded(images[1], setLoadedImages)
+      }
+    }
+
     const onLoad = () => {
       setBackgroundSpring.start({
         opacity: 1,
@@ -85,7 +85,7 @@ const Main = () => {
       })
     }
 
-    if (loadedImages.length > images.length) {
+    if (loadedImages.length >= images.length) {
       onLoad()
     }
 
@@ -134,7 +134,6 @@ const Main = () => {
             <div className="text-center m-4">
               <a.div className="inline-block" style={avatarSpring}>
                 <img
-                  onLoad={() => setImageLoaded(images[1], setLoadedImages)}
                   ref={imgRef}
                   src={images[1]}
                   alt="avatar"
@@ -212,6 +211,7 @@ const Main = () => {
                 />
               </button>
               <button>
+                MCRemote Terminal
                 <Icon
                   icon="mdi:minecraft"
                   className="text-zinc-300"
