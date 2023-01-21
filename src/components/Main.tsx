@@ -201,25 +201,26 @@ const Main = () => {
                                 ))}
                             </div> */}
               <hr className="border-zinc-500 mb-4" />
-              <button>
-                <Icon
-                  icon="material-symbols:terminal"
-                  className="text-zinc-300"
-                  width="24"
-                  height="24"
-                  inline={true}
-                />
-              </button>
-              <button>
-                MCRemote Terminal
-                <Icon
-                  icon="mdi:minecraft"
-                  className="text-zinc-300"
-                  width="24"
-                  height="24"
-                  inline={true}
-                />
-              </button>
+              <div className="grid grid-rows-1 grid-flow-col justify-center">
+                <button>
+                  <Icon
+                    icon="material-symbols:terminal"
+                    className="text-zinc-300"
+                    width="24"
+                    height="24"
+                    inline={true}
+                  />
+                </button>
+                <a href="https://wolfpackmc-remote.vercel.app">
+                  <Icon
+                    icon="mdi:minecraft"
+                    className="text-zinc-300"
+                    width="24"
+                    height="24"
+                    inline={true}
+                  />
+                </a>
+              </div>
             </div>
           </div>
           <div className="w-full left-0 bg-zinc-900/50 h-7 backdrop-blur-lg fixed bottom-0">
