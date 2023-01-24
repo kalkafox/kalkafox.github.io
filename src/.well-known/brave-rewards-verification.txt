@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: kalkafox.github.io
+Token: 44d1262abbec36026e95df0adfe13dcf65bdbfa80de456748d8c7ecbc46bb837

@@ -8,5 +8,5 @@ import partytown from "@astrojs/partytown";
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), react(), partytown()],
-  site: 'https://kalkafox.github.io'
+  site: 'https://kalkafox.github.io',
 });
