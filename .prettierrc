@@ -6,5 +6,10 @@
   "trailingComma": "all",
   "bracketSpacing": true,
   "arrowParens": "always",
-  "endOfLine": "auto"
+  "endOfLine": "auto",
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+  "pluginSearchDirs": false
 }

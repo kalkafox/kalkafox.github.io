@@ -1,1 +1,12 @@
-["Hi, I do stuffs."]
+[
+  "Hi, I do stuffs.",
+  "Hits the spot!",
+  "I'm a fox, beep boop.",
+  "`local fox = true`",
+  "`let mut fox = true;`",
+  "`const fox = true;`",
+  "`var fox = true;`",
+  "`fox = true;`",
+  "`public static boolean fox = true;`",
+  "`constexpr bool fox = true;`"
+]

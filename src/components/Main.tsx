@@ -1,18 +1,27 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { useSpring, useSprings, animated as a } from '@react-spring/web'
+import {
+  animated as a,
+  useSpring,
+  useSprings,
+  useTransition,
+} from '@react-spring/web'
+import { useEffect, useRef, useState } from 'react'
 
-import splashes from './splash.json'
-import links from './links.json'
 import { Icon } from '@iconify/react'
+import links from './links.json'
+import splashes from './splash.json'
 
 import './Main.css'
 
-import { images } from '../util/data'
-import { setImageLoaded } from '../util/image'
+import { useAtom } from 'jotai'
 import Background from '../../src/components/Background'
+import { loadedImagesAtom } from '../util/atom'
+import { images } from '../util/data'
 import env from '../util/version'
 
+import ReactMarkdown from 'react-markdown'
+
 const Main = () => {
+  const [loadedImages, setLoadedImages] = useAtom(loadedImagesAtom)
   const [showLoadSpinner, setShowLoadSpinner] = useState(true)
 
   const imgRef = useRef<HTMLImageElement>(null)
@@ -30,17 +39,15 @@ const Main = () => {
     scale: 1,
   }))
 
-  const [backgroundSpring, setBackgroundSpring] = useSpring(() => ({
-    scale: 1,
-    opacity: 0,
-    config: {
-      friction: 20,
-    },
-  }))
+  const splashTransition = useTransition(splashText, {
+    from: { opacity: 0, y: 10 },
+    enter: { opacity: 1, y: 0 },
+    leave: { opacity: 0, y: -10 },
+  })
 
   const [mainMenuSpring, setMainMenuSpring] = useSpring(() => ({
     opacity: 0,
-    scale: 1,
+    scale: 0.9,
     config: {
       friction: 20,
     },
@@ -59,39 +66,6 @@ const Main = () => {
     scale: 1,
   }))
 
-  const [loadedImages, setLoadedImages] = useState<string[]>([])
-
-  useEffect(() => {
-    if (imgRef.current) {
-      imgRef.current.onload = () => {
-        setImageLoaded(images[1], setLoadedImages)
-      }
-    }
-
-    const onLoad = () => {
-      setBackgroundSpring.start({
-        opacity: 1,
-        onRest: () => {
-          setShowLoadSpinner(false)
-        },
-      })
-
-      setMainMenuSpring.start({
-        opacity: 1,
-        scale: 1,
-        config: {
-          friction: 20,
-        },
-      })
-    }
-
-    if (loadedImages.length >= images.length) {
-      onLoad()
-    }
-
-    console.log(loadedImages)
-  }, [loadedImages, setMainMenuSpring, setBackgroundSpring])
-
   useEffect(() => {
     if (flipAvatar) {
       const choices = [-360, 360]
@@ -103,35 +77,35 @@ const Main = () => {
           setFlipAvatar(false)
         },
       })
+
+      setSplashText(splashes[Math.floor(Math.random() * splashes.length)])
     }
   }, [flipAvatar, setAvatarSpring])
 
   return (
     <>
       {showLoadSpinner && (
-        <div className="w-full h-full fixed">
-          <div className="w-[40%] portrait:w-[80%] lg:w-[80%] h-auto fixed left-0 right-0 top-20 m-auto">
-            <div className="text-center m-4">
-              <div className="w-[136px] h-[136px] top-3 left-0 right-0 m-auto absolute bg-zinc-800 loader" />
-              a
+        <div className="fixed h-full w-full">
+          <div className="fixed left-0 right-0 top-20 m-auto h-auto w-[40%] lg:w-[80%] portrait:w-[80%]">
+            <div className="m-4 text-center">
+              <div className="left-0 right-0 text-center">
+                <Icon
+                  className="fixed left-0 w-full animate-spin text-zinc-300"
+                  width={128}
+                  height={128}
+                  icon="gg:spinner"
+                />
+              </div>
             </div>
           </div>
         </div>
       )}
-      <a.div style={loadSpring} className="fixed w-full h-full">
-        <a.div style={backgroundSpring}>
-          <Background
-            doResize={false}
-            mod={5000}
-            amp={20}
-            setReady={setLoadedImages}
-            image={images[0]}
-          />
-        </a.div>
-        <div className="w-full h-full fixed bg-zinc-900 opacity-50" />
-        <a.div style={mainMenuSpring} className="w-full h-full fixed">
-          <div className="w-[40%] portrait:w-[80%] h-auto fixed bg-zinc-900/75 rounded-xl left-0 right-0 top-20 m-auto">
-            <div className="text-center m-4">
+      <a.div style={loadSpring} className="fixed h-full w-full">
+        <Background doResize={false} mod={5000} amp={20} />
+        <div className="fixed h-full w-full bg-zinc-900 opacity-50" />
+        <a.div style={mainMenuSpring} className="fixed h-full w-full">
+          <div className="fixed left-0 right-0 top-20 m-auto h-auto w-[40%] rounded-xl bg-zinc-900/75 portrait:w-[80%]">
+            <div className="m-4 text-center">
               <a.div className="inline-block" style={avatarSpring}>
                 <img
                   ref={imgRef}
@@ -139,17 +113,43 @@ const Main = () => {
                   alt="avatar"
                   width="128"
                   height="128"
-                  className="rounded-full inline left-0 right-0 m-auto"
+                  onLoad={() => {
+                    setFlipAvatar(true)
+                    setLoadSpring.start({
+                      opacity: 1,
+                      scale: 1,
+                      onRest: () => {
+                        setLoadSpring.set({ opacity: 1, scale: 1 })
+                        setShowLoadSpinner(false)
+                      },
+                    })
+
+                    setMainMenuSpring.start({
+                      opacity: 1,
+                      scale: 1,
+                    })
+                    imgRef.current &&
+                      setLoadedImages((prev) => {
+                        return [...prev, imgRef.current?.src as string]
+                      })
+                  }}
+                  className="left-0 right-0 m-auto inline rounded-full"
                 />
               </a.div>
               <span
                 onClick={() => setFlipAvatar(true)}
-                className="w-[128px] h-[128px] left-0 right-0 m-auto fixed rounded-full border-2 border-zinc-300"
+                className="fixed left-0 right-0 m-auto h-[128px] w-[128px] rounded-full border-2 border-zinc-300"
               />
-              <p className={`text-zinc-300 text-xl mt-4 mb-4 font-[Poppins]`}>
-                {splashText}
-              </p>
-              <div className="grid gap-4 grid-flow-col-dense justify-center text-3xl mb-8">
+              {splashTransition((style, item) => (
+                <a.div
+                  style={style}
+                  className="h-0 text-xl text-zinc-300"
+                  key={item}
+                >
+                  <ReactMarkdown>{item}</ReactMarkdown>
+                </a.div>
+              ))}
+              <div className="my-8 mb-8 grid grid-flow-col-dense justify-center gap-4 text-3xl">
                 {linkSprings.map(
                   (props, index) =>
                     links[index].active && (
@@ -200,8 +200,8 @@ const Main = () => {
                                     </a.span>
                                 ))}
                             </div> */}
-              <hr className="border-zinc-500 mb-4" />
-              <div className="grid grid-rows-1 grid-flow-col justify-center">
+              {/* <hr className="mb-4 border-zinc-500" />
+              <div className="grid grid-flow-col grid-rows-1 justify-center">
                 <button>
                   <Icon
                     icon="material-symbols:terminal"
@@ -220,18 +220,18 @@ const Main = () => {
                     inline={true}
                   />
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
-          <div className="w-full left-0 bg-zinc-900/50 h-7 backdrop-blur-lg fixed bottom-0">
-            <span className="inline-block fixed">
+          <div className="fixed left-0 bottom-0 h-7 w-full bg-zinc-900/50 backdrop-blur-lg">
+            <span className="fixed inline-block">
               <a
                 href="https://github.com/kalkafox/kalkafox.github.io"
                 rel="noreferrer"
                 target="_blank"
               >
                 <Icon
-                  className="inline text-zinc-300 top-0 bottom-0 h-7"
+                  className="top-0 bottom-0 inline h-7 text-zinc-300"
                   icon="mdi:github"
                   width="22"
                   height="22"
@@ -239,10 +239,10 @@ const Main = () => {
                 />
               </a>
             </span>
-            <div className="right-0 absolute -top-2 select-none">
+            <div className="absolute right-0 -top-2 select-none">
               <a href="https://astro.build" rel="noreferrer" target="_blank">
                 <Icon
-                  className="fixed right-8 fill-zinc-300 bottom-0"
+                  className="fixed right-10 bottom-0 fill-zinc-300"
                   icon="simple-icons:astro"
                   color="#eee"
                   width="24"
