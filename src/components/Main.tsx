@@ -6,6 +6,13 @@ import {
 } from '@react-spring/web'
 import { useEffect, useRef, useState } from 'react'
 
+import { Terminal as T } from 'xterm'
+import { FitAddon } from 'xterm-addon-fit'
+import { WebLinksAddon } from 'xterm-addon-web-links'
+import { WebglAddon } from 'xterm-addon-webgl'
+
+import '../layouts/xterm.css'
+
 import { Icon } from '@iconify/react'
 import links from './links.json'
 import splashes from './splash.json'
@@ -20,9 +27,46 @@ import env from '../util/version'
 
 import ReactMarkdown from 'react-markdown'
 
+import chalk from 'chalk'
+
+const prompt_data = {
+  left_border: '',
+  right_border: '',
+  separator: '',
+  separator_thin: '',
+  separator_thick: '',
+  separator_thick_thin: '',
+  user_suffix: '@localhost',
+  path_prefix: '',
+  path_suffix: '~',
+}
+
+const user = 'user@localhost'
+const path = '  ~'
+const promptSuffix = ' '
+
+const promptLength = user.length + path.length + promptSuffix.length
+
+const prompt = () => {
+  return (
+    chalk.white(prompt_data.left_border) +
+    chalk.bgWhite(chalk.black(user)) +
+    chalk.white(prompt_data.separator_thin) +
+    chalk.bgWhite(chalk.black(path)) +
+    chalk.white(prompt_data.separator_thick) +
+    chalk.bgWhite(chalk.black(promptSuffix)) +
+    chalk.white(prompt_data.right_border) +
+    ' '
+  )
+}
+
+const promptText = prompt()
+
 const Main = () => {
   const [loadedImages, setLoadedImages] = useAtom(loadedImagesAtom)
   const [showLoadSpinner, setShowLoadSpinner] = useState(true)
+
+  const [showTerminal, setShowTerminal] = useState(false)
 
   const imgRef = useRef<HTMLImageElement>(null)
 
@@ -53,6 +97,22 @@ const Main = () => {
     },
   }))
 
+  const [contentSpring, setContentSpring] = useSpring(() => ({
+    opacity: 1,
+    scale: 1,
+    config: {
+      friction: 20,
+    },
+  }))
+
+  const [terminalSpring, setTerminalSpring] = useSpring(() => ({
+    opacity: 0,
+    scale: 1,
+    config: {
+      friction: 20,
+    },
+  }))
+
   const [avatarSpring, setAvatarSpring] = useSpring(() => ({
     rotateZ: 0,
     scale: 1,
@@ -65,6 +125,135 @@ const Main = () => {
     opacity: 1,
     scale: 1,
   }))
+
+  const terminalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setTerminalSpring.set({
+      opacity: 0,
+      scale: 1,
+    })
+    if (!terminalRef.current) return
+
+    const fitAddon = new FitAddon()
+    const webLinksAddon = new WebLinksAddon()
+    const webglAddon = new WebglAddon()
+    webglAddon.onContextLoss((_) => webglAddon.dispose())
+
+    const term = new T({
+      cursorBlink: true,
+      fontFamily: 'CaskaydiaCove Nerd Font',
+      fontSize: 16,
+      fontWeight: 400,
+      fontWeightBold: 700,
+      theme: {
+        background: '#1e1e1e20',
+        foreground: '#d4d4d4',
+        cursor: '#d4d4d4',
+        selectionBackground: '#d4d4d4',
+        cursorAccent: '#d4d4d420',
+      },
+    })
+
+    if (terminalRef.current) {
+      term.open(terminalRef.current)
+
+      setTerminalSpring.set({
+        opacity: 0,
+        scale: 0.8,
+      })
+
+      term.loadAddon(fitAddon)
+      term.loadAddon(webLinksAddon)
+
+      setTerminalSpring.start({
+        opacity: 1,
+        scale: 1,
+        onChange: () => {
+          fitAddon.fit()
+        },
+        onRest: () => {
+          term.loadAddon(fitAddon)
+          fitAddon.fit()
+        },
+      })
+
+      term.writeln('Hello from \x1B[1;3;31mxterm.js\x1B[0m ')
+
+      const disposable = term.onData((data) => {
+        switch (data) {
+          case '\r':
+            term.writeln('\r\n')
+            // get current line
+            const line = term.buffer.active.getLine(
+              term.buffer.active.baseY + term.buffer.active.cursorY - 1,
+            )
+            // get current line as string
+            if (line) {
+              const lineStr = line.translateToString(true)
+              // get command from current line
+              // replace prompt with empty string
+              const cmd = lineStr.replace(user + path + promptSuffix, '').trim()
+              console.log(cmd)
+              term.write('\x1B[1A')
+              if (cmd.length !== 0) {
+                // move cursor up by one line
+                switch (cmd) {
+                  case 'clear':
+                    term.clear()
+                    break
+                  case 'transition':
+                    term.writeln("I wouldn't have done that if I were you...")
+                    disposable.dispose()
+                    return
+                }
+              }
+            }
+
+            term.write(promptText)
+            break
+          // Left arrow
+          case '\x1B[D':
+            // If cursor is at the beginning of the prompt, don't move it
+            if (term.buffer.active.cursorX === promptLength + 1) {
+              break
+            }
+            term.write('\b')
+            break
+          // Right arrow
+          case '\x1B[C':
+            term.write('\x1B[C')
+            break
+          // Up arrow
+          case '\x1B[A':
+            break
+          // Down arrow
+          case '\x1B[B':
+            break
+          case '\x03':
+            term.writeln('^C')
+            break
+          case '\x04': // Ctrl-D
+            term.writeln('^D')
+            break
+          case '\x1B': // Escape
+            term.writeln('^[')
+            break
+          // Backspace
+          case '\x7F':
+            term.write('\b \b')
+            break
+          default:
+            term.write(data)
+            break
+        }
+      })
+    }
+
+    return () => {
+      term.dispose()
+    }
+  }, [terminalRef.current])
 
   useEffect(() => {
     if (flipAvatar) {
@@ -104,7 +293,10 @@ const Main = () => {
         <Background doResize={false} mod={5000} amp={20} />
         <div className="fixed h-full w-full bg-zinc-900 opacity-50" />
         <a.div style={mainMenuSpring} className="fixed h-full w-full">
-          <div className="fixed left-0 right-0 top-20 m-auto h-auto w-[40%] rounded-xl bg-zinc-900/75 portrait:w-[80%]">
+          <a.div
+            style={contentSpring}
+            className="fixed left-0 right-0 top-20 m-auto h-auto w-[40%] rounded-xl bg-zinc-900/75 portrait:w-[80%]"
+          >
             <div className="m-4 text-center">
               <a.div className="inline-block" style={avatarSpring}>
                 <img
@@ -200,10 +392,20 @@ const Main = () => {
                                     </a.span>
                                 ))}
                             </div> */}
-              {/* <hr className="mb-4 border-zinc-500" />
+              <hr className="mb-4 border-zinc-500" />
               <div className="grid grid-flow-col grid-rows-1 justify-center">
                 <button>
                   <Icon
+                    onClick={() => {
+                      setShowTerminal(true)
+                      setContentSpring.start({
+                        opacity: 0,
+                        scale: 1.1,
+                        onRest: () => {
+                          setContentSpring.set({ opacity: 0, scale: 0 })
+                        },
+                      })
+                    }}
                     icon="material-symbols:terminal"
                     className="text-zinc-300"
                     width="24"
@@ -211,18 +413,45 @@ const Main = () => {
                     inline={true}
                   />
                 </button>
-                <a href="https://wolfpackmc-remote.vercel.app">
-                  <Icon
-                    icon="mdi:minecraft"
-                    className="text-zinc-300"
-                    width="24"
-                    height="24"
-                    inline={true}
-                  />
-                </a>
-              </div> */}
+              </div>
             </div>
-          </div>
+          </a.div>
+          {showTerminal && (
+            <>
+              <button
+                onClick={() => {
+                  setTerminalSpring.start({
+                    opacity: 0,
+                    scale: 0.9,
+                    onRest: () => {
+                      setTerminalSpring.set({ opacity: 0, scale: 0 })
+                      setShowTerminal(false)
+                    },
+                  })
+
+                  setContentSpring.set({
+                    scale: 1.1,
+                  })
+                  setContentSpring.start({
+                    opacity: 1,
+                    scale: 1,
+                    onRest: () => {
+                      setContentSpring.set({ opacity: 1, scale: 1 })
+                    },
+                  })
+                }}
+                className="fixed right-0 rounded-full bg-zinc-300 p-2"
+              >
+                <Icon width={24} height={24} icon="material-symbols:close" />
+              </button>
+              <a.div
+                style={terminalSpring}
+                className="fixed left-0 right-0 top-20 m-auto h-auto w-[40%] rounded-xl bg-zinc-900/75 portrait:w-[80%]"
+              >
+                <div ref={terminalRef} className="terminal" />
+              </a.div>
+            </>
+          )}
           <div className="fixed left-0 bottom-0 h-7 w-full bg-zinc-900/50 backdrop-blur-lg">
             <span className="fixed inline-block">
               <a
@@ -243,6 +472,7 @@ const Main = () => {
               <a href="https://astro.build" rel="noreferrer" target="_blank">
                 <Icon
                   className="fixed right-10 bottom-0 fill-zinc-300"
+                  onClick={() => {}}
                   icon="simple-icons:astro"
                   color="#eee"
                   width="24"
