@@ -27,8 +27,6 @@ import env from '../util/version'
 
 import ReactMarkdown from 'react-markdown'
 
-import chalk from 'chalk'
-
 const prompt_data = {
   left_border: '',
   right_border: '',
@@ -48,16 +46,17 @@ const promptSuffix = ' '
 const promptLength = user.length + path.length + promptSuffix.length
 
 const prompt = () => {
-  return (
-    chalk.white(prompt_data.left_border) +
-    chalk.bgWhite(chalk.black(user)) +
-    chalk.white(prompt_data.separator_thin) +
-    chalk.bgWhite(chalk.black(path)) +
-    chalk.white(prompt_data.separator_thick) +
-    chalk.bgWhite(chalk.black(promptSuffix)) +
-    chalk.white(prompt_data.right_border) +
-    ' '
-  )
+  return ' '
+  // return (
+  //   chalk.white(prompt_data.left_border) +
+  //   chalk.bgWhite(chalk.black(user)) +
+  //   chalk.white(prompt_data.separator_thin) +
+  //   chalk.bgWhite(chalk.black(path)) +
+  //   chalk.white(prompt_data.separator_thick) +
+  //   chalk.bgWhite(chalk.black(promptSuffix)) +
+  //   chalk.white(prompt_data.right_border) +
+  //   ' '
+  // )
 }
 
 const promptText = prompt()
